@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import UserList from '../components/chat/UserList';
-import ChatWindow from '../components/chat/ChatWindow';
-import StatusSelector from '../components/chat/StatusSelector';
-import { useAuthStore } from '../store/authStore';
-import { useUserStore } from '../store/userStore';
-import { useChatStore } from '../store/chatStore';
-import { socketService } from '../services/socketService';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import UserList from "../components/chat/UserList";
+import ChatWindow from "../components/chat/ChatWindow";
+import StatusSelector from "../components/chat/StatusSelector";
+import { useAuthStore } from "../store/authStore";
+import { useUserStore } from "../store/userStore";
+import { useChatStore } from "../store/chatStore";
+import { socketService } from "../services/socketService";
 
 const Chat: React.FC = () => {
   const navigate = useNavigate();
@@ -15,41 +15,45 @@ const Chat: React.FC = () => {
   const { clearMessages } = useChatStore();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
+    if (!isAuthenticated || !user) {
+      navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated,user, navigate]);
 
   const handleLogout = () => {
     // Disconnect socket
     socketService.disconnect();
-    
+
     // Clear states
     clearSelectedUser();
     clearMessages();
     logout();
-    
+
     // Navigate to login
-    navigate('/login');
+    navigate("/login");
   };
 
-  const selectedUser = selectedUserId 
-    ? users.find(u => u.id === selectedUserId) || null 
+  const selectedUser = selectedUserId
+    ? users.find((u) => u.id === selectedUserId) || null
     : null;
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-primary-700 text-white shadow-lg">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Company Chat</h1>
+          <h1 className="text-xl font-bold">Thetherfi</h1>
           <div className="flex items-center space-x-4">
             <StatusSelector currentStatus={user.status} />
             <div className="text-sm font-medium">{user.username}</div>
-            <button 
+            <button
               onClick={handleLogout}
               className="text-sm px-3 py-1 rounded bg-primary-600 hover:bg-primary-800"
             >
