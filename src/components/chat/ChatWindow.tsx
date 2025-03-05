@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useAuthStore } from '../../store/authStore';
-import { useChatStore } from '../../store/chatStore';
-import { User, Message } from '../../types';
+import React, { useState, useEffect, useRef } from "react";
+import { useAuthStore } from "../../store/authStore";
+import { useChatStore } from "../../store/chatStore";
+import { User, Message } from "../../types";
 
 interface ChatWindowProps {
   selectedUser: User | null;
@@ -9,22 +9,22 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
   const { user: currentUser } = useAuthStore();
-  const { 
-    messages, 
-    replyingTo, 
-    isLoading, 
-    fetchMessages, 
-    sendMessage, 
-    setReplyingTo, 
-    markMessagesAsRead 
+  const {
+    messages,
+    replyingTo,
+    isLoading,
+    fetchMessages,
+    sendMessage,
+    setReplyingTo,
+    markMessagesAsRead,
   } = useChatStore();
-  
-  const [messageText, setMessageText] = useState('');
+
+  const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Scroll to bottom when messages change
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -32,21 +32,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     if (selectedUser && currentUser) {
       // Fetch messages between the two users
       fetchMessages(currentUser.id, selectedUser.id);
-      
+    }
+  }, [selectedUser, currentUser, fetchMessages]);
+
+  // Separate effect for marking messages as read
+  useEffect(() => {
+    if (selectedUser && currentUser && messages.length > 0) {
       // Mark messages from selected user as read
       const hasUnreadMessages = messages.some(
-        m => m.senderId === selectedUser.id && m.receiverId === currentUser.id && !m.isRead
+        (m) =>
+          m.senderId === selectedUser.id &&
+          m.receiverId === currentUser.id &&
+          !m.isRead
       );
-      
+
       if (hasUnreadMessages) {
         markMessagesAsRead(selectedUser.id, currentUser.id);
       }
     }
-  }, [selectedUser, currentUser, fetchMessages, markMessagesAsRead, messages]);
+  }, [selectedUser, currentUser, markMessagesAsRead, messages]);
 
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedUser || !currentUser) return;
-    
+
     try {
       await sendMessage(
         messageText,
@@ -54,15 +62,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
         selectedUser.id,
         replyingTo?.id
       );
-      
-      setMessageText('');
+
+      setMessageText("");
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -81,66 +89,112 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     );
   }
 
-  // Filter messages between the current user and selected user
-  const filteredMessages = messages.filter(
-    message => 
-      (message.senderId === currentUser.id && message.receiverId === selectedUser.id) ||
-      (message.senderId === selectedUser.id && message.receiverId === currentUser.id)
-  );
+  // Filter messages between the current user and selected user,
+  // transform and sort them by timestamp
+  const filteredMessages = messages
+    .filter(
+      (message: any) =>
+        (message.senderId === currentUser.id &&
+          message.receiverId === selectedUser.id) ||
+        (message.senderId === selectedUser.id &&
+          message.receiverId === currentUser.id)
+    )
+    .map((message: any) => ({
+      ...message,
+      timestamp: message.createdAt || message.timestamp,
+    }))
+    .sort((a: any, b: any) => {
+      // Sort by timestamp (oldest messages first)
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    });
 
   // Function to get the referenced message for replies
   const getReferencedMessage = (replyToId?: string) => {
     if (!replyToId) return null;
-    return messages.find(m => m.id === replyToId);
+    return messages.find((m) => m.id === replyToId);
   };
 
   return (
-    <div className="flex-1 flex flex-col rounded-lg shadow-lg bg-white overflow-hidden">
-      {/* Header */}
-      <div className="p-4 bg-primary-600 text-white flex items-center">
+    <div className="flex-1 flex flex-col rounded-lg shadow-lg bg-white overflow-hidden h-full">
+      {/* Sticky header */}
+      <div className="p-4 bg-primary-600 text-white flex items-center sticky top-0">
         <div className="flex-shrink-0 relative mr-3">
           <div className="h-10 w-10 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-semibold">
             {selectedUser.username.charAt(0).toUpperCase()}
           </div>
-          <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-primary-600 
-            ${selectedUser.status === 'Available' ? 'bg-green-500' : 
-              selectedUser.status === 'Busy' ? 'bg-red-500' : 
-              selectedUser.status === 'Away' ? 'bg-yellow-500' : 'bg-gray-500'}`}></div>
+          <div
+            className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-primary-600 
+            ${
+              selectedUser.status === "Available"
+                ? "bg-green-500"
+                : selectedUser.status === "Busy"
+                ? "bg-red-500"
+                : selectedUser.status === "Away"
+                ? "bg-yellow-500"
+                : "bg-gray-500"
+            }`}
+          ></div>
         </div>
         <div>
           <h2 className="text-lg font-semibold">{selectedUser.username}</h2>
           <p className="text-xs text-primary-100">{selectedUser.status}</p>
         </div>
       </div>
-      
-      {/* Messages */}
+
+      {/* Messages - Scrollable area */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
         <div className="space-y-4">
-          {filteredMessages.map(message => {
+          {filteredMessages.map((message) => {
             const isCurrentUser = message.senderId === currentUser.id;
             const referencedMessage = getReferencedMessage(message.replyTo);
-            
+
             return (
-              <div key={message.id} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                <div 
-                  className={`max-w-[75%] ${isCurrentUser ? 'bg-primary-500 text-white' : 'bg-white'} rounded-lg shadow p-3 relative group`}
-                  onClick={() => !isCurrentUser && handleReplyToMessage(message)}
+              <div
+                key={message.id}
+                className={`flex ${
+                  isCurrentUser ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[75%] ${
+                    isCurrentUser ? "bg-primary-500 text-white" : "bg-white"
+                  } rounded-lg shadow p-3 relative group`}
+                  onClick={() =>
+                    !isCurrentUser && handleReplyToMessage(message)
+                  }
                 >
                   {referencedMessage && (
-                    <div className={`text-xs p-2 mb-2 rounded ${isCurrentUser ? 'bg-primary-400' : 'bg-gray-100'}`}>
+                    <div
+                      className={`text-xs p-2 mb-2 rounded ${
+                        isCurrentUser ? "bg-primary-400" : "bg-gray-100"
+                      }`}
+                    >
                       <div className="font-semibold">
-                        {referencedMessage.senderId === currentUser.id ? 'You' : selectedUser.username}
+                        {referencedMessage.senderId === currentUser.id
+                          ? "You"
+                          : selectedUser.username}
                       </div>
-                      <div className="truncate">{referencedMessage.content}</div>
+                      <div className="truncate">
+                        {referencedMessage.content}
+                      </div>
                     </div>
                   )}
                   <div>{message.content}</div>
-                  <div className={`text-xs mt-1 ${isCurrentUser ? 'text-primary-200' : 'text-gray-400'}`}>
-                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {isCurrentUser && message.isRead && <span className="ml-2">✓</span>}
+                  <div
+                    className={`text-xs mt-1 ${
+                      isCurrentUser ? "text-primary-200" : "text-gray-400"
+                    }`}
+                  >
+                    {new Date(message.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {isCurrentUser && message.isRead && (
+                      <span className="ml-2">✓</span>
+                    )}
                   </div>
                   {!isCurrentUser && (
-                    <button 
+                    <button
                       className="hidden group-hover:block absolute -top-3 right-0 bg-gray-200 rounded-full p-1 text-xs text-gray-700"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -157,19 +211,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
           <div ref={messagesEndRef} />
         </div>
       </div>
-      
-      {/* Reply to message (if any) */}
+
+      {/* Reply to message (if any) - Sticky at bottom */}
       {replyingTo && (
         <div className="px-4 pt-2 bg-gray-100 border-t">
           <div className="flex justify-between items-center text-sm p-2 bg-white rounded">
             <div>
               <span className="font-semibold">
-                Reply to {replyingTo.senderId === currentUser.id ? 'yourself' : selectedUser.username}:
+                Reply to{" "}
+                {replyingTo.senderId === currentUser.id
+                  ? "yourself"
+                  : selectedUser.username}
+                :
               </span>
-              <span className="ml-2 text-gray-600 truncate">{replyingTo.content}</span>
+              <span className="ml-2 text-gray-600 truncate">
+                {replyingTo.content}
+              </span>
             </div>
-            <button 
-              onClick={() => setReplyingTo(null)} 
+            <button
+              onClick={() => setReplyingTo(null)}
               className="ml-2 text-gray-400 hover:text-gray-600"
             >
               ×
@@ -177,9 +237,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
           </div>
         </div>
       )}
-      
-      {/* Message input */}
-      <div className="p-4 border-t">
+
+      {/* Message input - Sticky at bottom */}
+      <div className="p-4 border-t bg-white">
         <div className="flex space-x-2">
           <textarea
             className="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"

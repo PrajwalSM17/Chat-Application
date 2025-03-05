@@ -14,10 +14,14 @@ const UserList: React.FC = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const findUser = (enteredUser: any) => {
-    console.log(enteredUser, "triggeredddd");
+  // Filter users based on search input
+  const findUser = (searchQuery: string) => {
+    if (!searchQuery) return users;
 
-    console.log("usersss", users);
+    // Only trigger actual filtering if the user has typed something
+    return users.filter((user) =>
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   };
 
   if (isLoading) {
@@ -29,7 +33,16 @@ const UserList: React.FC = () => {
   }
 
   // Filter out the current user from the list
-  const filteredUsers = users.filter((user) => user.id !== currentUser?.id);
+  const usersWithoutCurrent = users.filter(
+    (user) => user.id !== currentUser?.id
+  );
+
+  // Apply search filter if there is search text
+  const filteredUsers = enteredText
+    ? usersWithoutCurrent.filter((user) =>
+        user.username.toLowerCase().includes(enteredText.toLowerCase())
+      )
+    : usersWithoutCurrent;
 
   // Get unread message count for each user
   const getUnreadCount = (userId: string) => {
@@ -49,24 +62,29 @@ const UserList: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full">
-      <div className="p-4 bg-primary-600 text-white">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
+      {/* Sticky header section */}
+      <div className="p-4 bg-primary-600 text-white sticky top-0 z-10">
         <h2 className="text-lg font-semibold mb-2">Colleagues</h2>
         <input
-          className="w-full h-1/6 p-2 rounded bg-primary-200 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600"
+          className="w-full p-2 rounded bg-primary-200 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600"
           placeholder="Search colleagues..."
           value={enteredText}
-          onInput={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const newText = e.target.value;
             setEnteredText(newText);
-            findUser(newText);
+            // No need to call findUser here as filteredUsers will automatically update
           }}
         />
       </div>
+
+      {/* Scrollable user list */}
       {filteredUsers.length === 0 ? (
-        <div className="p-4 text-center text-gray-500">No users available</div>
+        <div className="p-4 text-center text-gray-500">
+          {enteredText ? "No matching users found" : "No users available"}
+        </div>
       ) : (
-        <ul className="divide-y divide-gray-200 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <ul className="divide-y divide-gray-200 overflow-y-auto flex-1">
           {filteredUsers.map((user) => {
             const unreadCount = getUnreadCount(user.id);
 

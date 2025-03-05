@@ -1,9 +1,9 @@
-import { io, Socket } from 'socket.io-client';
-import { Message } from '../types';
-import { useChatStore } from '../store/chatStore';
-import { useUserStore } from '../store/userStore';
+import { io, Socket } from "socket.io-client";
+import { Message } from "../types";
+import { useChatStore } from "../store/chatStore";
+import { useUserStore } from "../store/userStore";
 
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5000";
 
 class SocketService {
   private socket: Socket | null = null;
@@ -14,8 +14,8 @@ class SocketService {
     this.token = token;
     this.socket = io(SOCKET_URL, {
       auth: {
-        token
-      }
+        token,
+      },
     });
 
     this.setupListeners();
@@ -25,37 +25,46 @@ class SocketService {
   private setupListeners(): void {
     if (!this.socket) return;
 
-    this.socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
+    this.socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket server');
+    this.socket.on("disconnect", () => {
+      console.log("Disconnected from WebSocket server");
     });
 
     // Listen for incoming messages
-    this.socket.on('message', (message: Message) => {
+    this.socket.on("message", (message: Message) => {
       const chatStore = useChatStore.getState();
       chatStore.receiveMessage(message);
     });
 
     // Listen for user status changes
-    this.socket.on('status-update', ({ userId, status }: { userId: string; status: 'Available' | 'Busy' | 'Away' | 'Offline' }) => {
-      const userStore = useUserStore.getState();
-      userStore.updateUserStatus(userId, status);
-    });
+    this.socket.on(
+      "status-update",
+      ({
+        userId,
+        status,
+      }: {
+        userId: string;
+        status: "Available" | "Busy" | "Away" | "Offline";
+      }) => {
+        const userStore = useUserStore.getState();
+        userStore.updateUserStatus(userId, status);
+      }
+    );
   }
 
   // Send a message
-  sendMessage(message: Omit<Message, 'id' | 'timestamp' | 'isRead'>): void {
+  sendMessage(message: Omit<Message, "id" | "timestamp" | "isRead">): void {
     if (!this.socket) return;
-    this.socket.emit('send-message', message);
+    this.socket.emit("send-message", message);
   }
 
   // Update user status
-  updateStatus(status: 'Available' | 'Busy' | 'Away' | 'Offline'): void {
+  updateStatus(status: "Available" | "Busy" | "Away" | "Offline"): void {
     if (!this.socket) return;
-    this.socket.emit('update-status', { status });
+    this.socket.emit("update-status", { status });
   }
 
   // Disconnect the socket

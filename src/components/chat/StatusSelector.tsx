@@ -15,15 +15,17 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({ currentStatus }) => {
     { value: 'Away', color: 'bg-yellow-500' },
     { value: 'Offline', color: 'bg-gray-500' }
   ];
+  console.log('currentStatus--->', currentStatus);
 
   const currentStatusObj = statuses.find(s => s.value === currentStatus) || statuses[0];
+
 
   const handleStatusChange = (status: 'Available' | 'Busy' | 'Away' | 'Offline') => {
     updateStatus(status);
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as="div" className="relative inline-block text-left z-40">
       <Menu.Button className="flex items-center space-x-2 p-2 rounded-full hover:bg-primary-50 focus:outline-none">
         <div className={`h-3 w-3 rounded-full ${currentStatusObj.color}`}></div>
         <span className="text-sm font-medium text-gray-700">{currentStatus}</span>
@@ -38,7 +40,7 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({ currentStatus }) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <div className="py-1">
             {statuses.map((status) => (
               <Menu.Item key={status.value}>
