@@ -44,6 +44,7 @@ export const authService = {
   ): Promise<User> => {
     try {
       const response = await api.patch<User>("/auth/status", { status });
+      console.log('Updated status:-->', response.data);
       return response.data;
     } catch (error: any) {
       throw new Error(

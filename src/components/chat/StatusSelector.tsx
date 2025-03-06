@@ -26,9 +26,9 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({ currentStatus }) => {
 
   return (
     <Menu as="div" className="relative inline-block text-left z-40">
-      <Menu.Button className="flex items-center space-x-2 p-2 rounded-full hover:bg-primary-50 focus:outline-none">
+      <Menu.Button className="flex items-center space-x-2 p-2 rounded-full hover:bg-primary-800 focus:outline-none">
         <div className={`h-3 w-3 rounded-full ${currentStatusObj.color}`}></div>
-        <span className="text-sm font-medium text-gray-700">{currentStatus}</span>
+        <span className="text-sm font-medium text-gray-50">{currentStatus}</span>
       </Menu.Button>
       
       <Transition

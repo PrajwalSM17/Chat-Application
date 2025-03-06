@@ -64,18 +64,32 @@ const UserList: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
       {/* Sticky header section */}
-      <div className="p-4 bg-primary-600 text-white sticky top-0 z-10">
+      <div className="p-2 bg-primary-600 text-white sticky top-0 z-10 h-20">
         <h2 className="text-lg font-semibold mb-2">Colleagues</h2>
-        <input
-          className="w-full p-2 rounded bg-primary-200 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-600"
-          placeholder="Search colleagues..."
-          value={enteredText}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const newText = e.target.value;
-            setEnteredText(newText);
-            // No need to call findUser here as filteredUsers will automatically update
-          }}
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg
+              className="h-5 w-5 text-purple-300"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            className="w-full h-1/2 py-1 pl-10 pr-3 bg-purple-200 bg-opacity-30 text-white placeholder-purple-200 focus:outline-none border-b-2 border-purple-400 focus:border-white transition-colors rounded-md"
+            placeholder="Search colleagues..."
+            value={enteredText}
+            onChange={(e) => {
+              const newText = e.target.value;
+              setEnteredText(newText);
+            }}
+          />
+        </div>
       </div>
 
       {/* Scrollable user list */}
