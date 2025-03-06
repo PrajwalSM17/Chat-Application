@@ -23,6 +23,8 @@ const Chat: React.FC = () => {
 
   const handleLogout = () => {
     // Disconnect socket
+    socketService.updateStatus("Offline");
+
     socketService.disconnect();
 
     // Clear states

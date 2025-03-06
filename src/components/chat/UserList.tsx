@@ -33,16 +33,16 @@ const UserList: React.FC = () => {
   }
 
   // Filter out the current user from the list
-  const usersWithoutCurrent = users.filter(
+  const usersWithoutCurrentUser = users.filter(
     (user) => user.id !== currentUser?.id
   );
 
   // Apply search filter if there is search text
   const filteredUsers = enteredText
-    ? usersWithoutCurrent.filter((user) =>
+    ? usersWithoutCurrentUser.filter((user) =>
         user.username.toLowerCase().includes(enteredText.toLowerCase())
       )
-    : usersWithoutCurrent;
+    : usersWithoutCurrentUser;
 
   // Get unread message count for each user
   const getUnreadCount = (userId: string) => {
@@ -129,11 +129,11 @@ const UserList: React.FC = () => {
                       {user.status}
                     </p>
                   </div>
-                  {unreadCount > 0 && (
+                  {/* {unreadCount > 0 && (
                     <div className="bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {unreadCount}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </li>
             );

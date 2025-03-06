@@ -25,7 +25,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email: string, password: string) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await authService.login({ email, password });
+      let response = await authService.login({ email, password });
+      response.user.status = 'Available';
       set({ 
         isLoading: false,
         isAuthenticated: true,
@@ -70,7 +71,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     // Disconnect socket
     socketService.disconnect();
-    
+    console.log('User Status Changed to Offline')
     // Clear state and local storage
     localStorage.removeItem('token');
     set({

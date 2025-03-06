@@ -19,7 +19,6 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({ currentStatus }) => {
 
   const currentStatusObj = statuses.find(s => s.value === currentStatus) || statuses[0];
 
-
   const handleStatusChange = (status: 'Available' | 'Busy' | 'Away' | 'Offline') => {
     updateStatus(status);
   };

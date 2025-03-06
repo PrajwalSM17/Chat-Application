@@ -21,36 +21,57 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
 
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [lastMessageTime, setLastMessageTime] = useState<Date | null>(null);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    // Scroll to bottom when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Load messages when selected user changes
   useEffect(() => {
-    // If selected user changes, load messages and mark as read
     if (selectedUser && currentUser) {
-      // Fetch messages between the two users
       fetchMessages(currentUser.id, selectedUser.id);
+      setLastMessageTime(new Date()); // Track when we loaded messages
     }
   }, [selectedUser, currentUser, fetchMessages]);
 
-  // Separate effect for marking messages as read
+  // Mark messages as read and check for new messages
   useEffect(() => {
     if (selectedUser && currentUser && messages.length > 0) {
       // Mark messages from selected user as read
-      const hasUnreadMessages = messages.some(
+      const unreadMessages = messages.filter(
         (m) =>
           m.senderId === selectedUser.id &&
           m.receiverId === currentUser.id &&
           !m.isRead
       );
 
-      if (hasUnreadMessages) {
-        markMessagesAsRead(selectedUser.id, currentUser.id);
+      if (unreadMessages.length > 0) {
+        // Only uncomment this when the backend endpoint is ready
+        // markMessagesAsRead(selectedUser.id, currentUser.id);
+        
+        // For now, mark them as read locally
+        // This would be handled by your markMessagesAsRead implementation
+      }
+
+      // Check if there's a new message since we last checked
+      if (lastMessageTime) {
+        const newMessages = messages.filter(
+          (m: any) => 
+            new Date(m.createdAt || m.timestamp) > lastMessageTime &&
+            m.senderId === selectedUser.id
+        );
+
+        if (newMessages.length > 0) {
+          // Play notification sound or show a visual indicator
+          // This is optional but enhances the user experience
+          console.log("New messages received:", newMessages.length);
+          setLastMessageTime(new Date());
+        }
       }
     }
-  }, [selectedUser, currentUser, markMessagesAsRead, messages]);
+  }, [selectedUser, currentUser, messages, lastMessageTime]);
 
   const handleSendMessage = async () => {
     if (!messageText.trim() || !selectedUser || !currentUser) return;
@@ -102,6 +123,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     .map((message: any) => ({
       ...message,
       timestamp: message.createdAt || message.timestamp,
+      isRead: message.read ?? message.isRead ?? false, // Handle both read and isRead properties
     }))
     .sort((a: any, b: any) => {
       // Sort by timestamp (oldest messages first)
@@ -143,6 +165,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
 
       {/* Messages - Scrollable area */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+        {filteredMessages.length === 0 && (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No messages yet. Start the conversation!
+          </div>
+        )}
         <div className="space-y-4">
           {filteredMessages.map((message) => {
             const isCurrentUser = message.senderId === currentUser.id;
