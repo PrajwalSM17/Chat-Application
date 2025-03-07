@@ -15,7 +15,6 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({ currentStatus }) => {
     { value: 'Away', color: 'bg-yellow-500' },
     { value: 'Offline', color: 'bg-gray-500' }
   ];
-  console.log('currentStatus--->', currentStatus);
 
   const currentStatusObj = statuses.find(s => s.value === currentStatus) || statuses[0];
 

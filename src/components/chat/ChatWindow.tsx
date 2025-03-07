@@ -85,6 +85,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
       );
 
       setMessageText("");
+      // Clear the replyingTo state after sending the message
+      setReplyingTo(null);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -174,6 +176,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
           {filteredMessages.map((message) => {
             const isCurrentUser = message.senderId === currentUser.id;
             const referencedMessage = getReferencedMessage(message.replyTo);
+            // Check if this message is already a reply to prevent nested replies
+            const isAlreadyAReply = message.replyTo !== undefined && message.replyTo !== null;
 
             return (
               <div
@@ -184,10 +188,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
               >
                 <div
                   className={`max-w-[75%] ${
-                    isCurrentUser ? "bg-primary-500 text-white" : "bg-white"
+                    isCurrentUser ? "bg-primary-500 text-white" : "bg-primary-200"
                   } rounded-lg shadow p-3 relative group`}
                   onClick={() =>
-                    !isCurrentUser && handleReplyToMessage(message)
+                    !isCurrentUser && !isAlreadyAReply && handleReplyToMessage(message)
                   }
                 >
                   {referencedMessage && (
@@ -220,7 +224,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
                       <span className="ml-2">✓</span>
                     )}
                   </div>
-                  {!isCurrentUser && (
+                  {!isCurrentUser && !isAlreadyAReply && (
                     <button
                       className="hidden group-hover:block absolute -top-3 right-0 bg-gray-200 rounded-full p-1 text-xs text-gray-700"
                       onClick={(e) => {
