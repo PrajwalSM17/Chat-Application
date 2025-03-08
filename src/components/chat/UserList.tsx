@@ -63,7 +63,6 @@ const UserList: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
-      {/* Sticky header section */}
       <div className="p-2 bg-primary-600 text-white sticky top-0 z-10 h-20">
         <h2 className="text-lg font-semibold mb-2">Colleagues</h2>
         <div className="relative">
@@ -92,7 +91,6 @@ const UserList: React.FC = () => {
         </div>
       </div>
 
-      {/* Scrollable user list */}
       {filteredUsers.length === 0 ? (
         <div className="p-4 text-center text-gray-500">
           {enteredText ? "No matching users found" : "No users available"}
@@ -130,7 +128,7 @@ const UserList: React.FC = () => {
                     </p>
                   </div>
                   {/* {unreadCount > 0 && (
-                    <div className="bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <div className="bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"> TODO: add unread message count new function has to be created to handle
                       {unreadCount}
                     </div>
                   )} */}

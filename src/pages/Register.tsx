@@ -6,20 +6,33 @@ const Register: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
   const { register, isLoading, error } = useAuthStore();
+
+  const validatePassword = (password: string): boolean => {
+    if (password.length < 5) {
+      setPasswordError("Password must be at least 5 characters long");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!validatePassword(password)) {
+      return;
+    }
+
     try {
       await register(username, email, password);
-      // Navigate to login after successful registration
       navigate("/login", {
         state: { successMessage: "Registration successful! Please log in." },
       });
     } catch (error) {
-      // Error is already handled in the store
+      console.log('Error in Login:', error);
     }
   };
 
@@ -89,6 +102,12 @@ const Register: React.FC = () => {
               />
             </div>
           </div>
+
+          {passwordError && (
+            <div className="text-sm text-red-600" role="alert">
+              {passwordError}
+            </div>
+          )}
 
           <div>
             <button

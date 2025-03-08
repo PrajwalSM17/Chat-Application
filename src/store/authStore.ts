@@ -35,7 +35,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       localStorage.setItem('token', response.token);
       
-      // Initialize socket connection
       socketService.init(response.token);
     } catch (error: any) {
       set({ isLoading: false, error: error.message });
@@ -56,12 +55,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   
   updateStatus: async (status: 'Available' | 'Busy' | 'Away' | 'Offline') => {
     try {
-      // Optimistically update the local state
       set({ 
         user: get().user ? { ...get().user!, status } : null 
       });
       
-      // Send update to the server via WebSocket
       socketService.updateStatus(status);
     } catch (error) {
       console.error('Failed to update status:', error);
@@ -69,10 +66,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   
   logout: () => {
-    // Disconnect socket
     socketService.disconnect();
     console.log('User Status Changed to Offline')
-    // Clear state and local storage
     localStorage.removeItem('token');
     set({
       user: null,

@@ -21,7 +21,7 @@ const Login: React.FC = () => {
       await login(email, password);
       navigate("/chat");
     } catch (error) {
-      // Error is already handled in the store
+      console.error("Login failed:", error);
     }
   };
 

@@ -16,24 +16,20 @@ const Chat: React.FC = () => {
   const { clearMessages } = useChatStore();
 
   useEffect(() => {
-    if (!isAuthenticated || !user) {
+    if (!user || user === null) {
+      console.log('isAuthenticated', isAuthenticated, user);   // TODO: some fix is required here to load page on refresh
       navigate("/login");
     }
   }, [isAuthenticated, user, navigate]);
 
   const handleLogout = () => {
-    // Disconnect socket
     socketService.updateStatus("Offline");
 
     socketService.disconnect();
-
-    // Clear states
     clearSelectedUser();
     clearMessages();
     logout();
-
-    // Navigate to login
-    navigate("/login");
+    navigate("/login"); // Redirect to the login page
   };
 
   const selectedUser = selectedUserId

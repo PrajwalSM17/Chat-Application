@@ -39,107 +39,26 @@ export const useChatStore = create<ChatState>((set) => ({
       set({ isLoading: false, error: error.message });
     }
   },
-
-  // sendMessage: async (content: string, senderId: string, receiverId: string, replyToId?: string) => {
-  //   try {
-  //     set({ isLoading: true, error: null });
-
-  //     // Send message to server
-  //     const newMessage = await chatService.sendMessage({
-  //       content,
-  //       receiverId,
-  //       replyToId
-  //     });
-
-  //     // Also send via WebSocket for real-time updates
-  //     socketService.sendMessage({
-  //       content,
-  //       senderId,
-  //       receiverId,
-  //       replyTo: replyToId
-  //     });
-
-  //     // Update local state
-  //     set((state) => ({
-  //       messages: [...state.messages, newMessage],
-  //       replyingTo: null,
-  //       isLoading: false
-  //     }));
-  //   } catch (error: any) {
-  //     set({ isLoading: false, error: error.message });
-  //   }
-  // },
-
-  // In your chat store
   sendMessage: async (content: string, senderId: string, receiverId: string, replyToId?: string) => {
     try {
       set({ isLoading: true, error: null });
-
-      // Prepare the message
       const messageToSend = {
         content,
         senderId,
         receiverId,
         replyTo: replyToId
       };
-
-      // Send via WebSocket for real-time updates
       socketService.sendMessage(messageToSend);
-
-      // Note: We're not immediately updating the local state here
-      // because we'll receive the message back via socket with an ID
       set({ isLoading: false });
     } catch (error: any) {
       set({ isLoading: false, error: error.message });
     }
   },
-  // In your chat store
-  // sendMessage: async (
-  //   content: string,
-  //   senderId: string,
-  //   receiverId: string,
-  //   replyToId?: string
-  // ) => {
-  //   try {
-  //     set({ isLoading: true, error: null });
-
-  //     // Create a temporary message that exactly matches the Message type
-  //     const tempMessage: Message = {
-  //       id: `temp-${Date.now()}`,
-  //       content,
-  //       senderId,
-  //       receiverId,
-  //       timestamp: new Date(),
-  //       isRead: false,
-  //       replyTo: replyToId,
-  //     };
-
-  //     // Update state immediately for better UX
-  //     set((state) => {
-  //       return {
-  //         messages: [...state.messages, tempMessage],
-  //         replyingTo: null,
-  //         isLoading: false,
-  //       };
-  //     });
-
-  //     // Send message to server
-  //     socketService.sendMessage({
-  //       content,
-  //       senderId,
-  //       receiverId,
-  //       replyTo: replyToId,
-  //     });
-  //   } catch (error: any) {
-  //     set({ isLoading: false, error: error.message });
-  //   }
-  // },
-
   receiveMessage: (message: Message) => {
     set((state) => ({
       messages: [...state.messages, message],
     }));
-    console.log("storeeeeee message:", message);
+    console.log("storeeeeee message:-->", message);
   },
 
   setReplyingTo: (message: Message | null) => {

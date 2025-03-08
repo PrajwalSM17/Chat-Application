@@ -23,23 +23,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [lastMessageTime, setLastMessageTime] = useState<Date | null>(null);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load messages when selected user changes
   useEffect(() => {
     if (selectedUser && currentUser) {
       fetchMessages(currentUser.id, selectedUser.id);
-      setLastMessageTime(new Date()); // Track when we loaded messages
+      setLastMessageTime(new Date());
     }
   }, [selectedUser, currentUser, fetchMessages]);
 
-  // Mark messages as read and check for new messages
   useEffect(() => {
     if (selectedUser && currentUser && messages.length > 0) {
-      // Mark messages from selected user as read
+      // ToDo: Check if there are any unread messages from the message list new feature
       const unreadMessages = messages.filter(
         (m) =>
           m.senderId === selectedUser.id &&
@@ -48,14 +45,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
       );
 
       if (unreadMessages.length > 0) {
-        // Only uncomment this when the backend endpoint is ready
-        // markMessagesAsRead(selectedUser.id, currentUser.id);
-        
-        // For now, mark them as read locally
-        // This would be handled by your markMessagesAsRead implementation
+        // ToDO: Backend endpoint to mark messages as read need to work on this
       }
-
-      // Check if there's a new message since we last checked
       if (lastMessageTime) {
         const newMessages = messages.filter(
           (m: any) => 
@@ -64,9 +55,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
         );
 
         if (newMessages.length > 0) {
-          // Play notification sound or show a visual indicator
-          // This is optional but enhances the user experience
-          console.log("New messages received:", newMessages.length);
           setLastMessageTime(new Date());
         }
       }
@@ -85,7 +73,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
       );
 
       setMessageText("");
-      // Clear the replyingTo state after sending the message
       setReplyingTo(null);
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -103,7 +90,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     setReplyingTo(message);
   };
 
-  // If there's no selected user or current user, show placeholder
   if (!selectedUser || !currentUser) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50 rounded-lg">
@@ -112,8 +98,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     );
   }
 
-  // Filter messages between the current user and selected user,
-  // transform and sort them by timestamp
   const filteredMessages = messages
     .filter(
       (message: any) =>
@@ -125,14 +109,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
     .map((message: any) => ({
       ...message,
       timestamp: message.createdAt || message.timestamp,
-      isRead: message.read ?? message.isRead ?? false, // Handle both read and isRead properties
+      isRead: message.read ?? message.isRead ?? false,
     }))
     .sort((a: any, b: any) => {
-      // Sort by timestamp (oldest messages first)
       return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
     });
 
-  // Function to get the referenced message for replies
   const getReferencedMessage = (replyToId?: string) => {
     if (!replyToId) return null;
     return messages.find((m) => m.id === replyToId);
@@ -140,7 +122,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
 
   return (
     <div className="flex-1 flex flex-col rounded-lg shadow-lg bg-white overflow-hidden h-full">
-      {/* Sticky header */}
       <div className="p-4 bg-primary-600 text-white flex items-center sticky top-0">
         <div className="flex-shrink-0 relative mr-3">
           <div className="h-10 w-10 rounded-full bg-primary-200 flex items-center justify-center text-primary-700 font-semibold">
@@ -165,7 +146,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
         </div>
       </div>
 
-      {/* Messages - Scrollable area */}
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
         {filteredMessages.length === 0 && (
           <div className="flex items-center justify-center h-full text-gray-500">
@@ -176,7 +156,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
           {filteredMessages.map((message) => {
             const isCurrentUser = message.senderId === currentUser.id;
             const referencedMessage = getReferencedMessage(message.replyTo);
-            // Check if this message is already a reply to prevent nested replies
             const isAlreadyAReply = message.replyTo !== undefined && message.replyTo !== null;
 
             return (
@@ -243,7 +222,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
         </div>
       </div>
 
-      {/* Reply to message (if any) - Sticky at bottom */}
       {replyingTo && (
         <div className="px-4 pt-2 bg-gray-100 border-t">
           <div className="flex justify-between items-center text-sm p-2 bg-white rounded">
@@ -269,7 +247,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedUser }) => {
         </div>
       )}
 
-      {/* Message input - Sticky at bottom */}
       <div className="p-4 border-t bg-white">
         <div className="flex space-x-2">
           <textarea
