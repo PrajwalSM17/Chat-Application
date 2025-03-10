@@ -29,7 +29,6 @@ export const chatService = {
   markMessagesAsRead: async (senderId: string): Promise<{ success: boolean }> => {
     try {
       const response = await api.patch<{ success: boolean }>(`/messages/read/${senderId}`);
-      console.log('Marked messages as read:', response.data);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to mark messages as read');

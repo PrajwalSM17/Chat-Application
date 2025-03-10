@@ -34,12 +34,10 @@ class SocketService {
       
     });
     this.socket.on("message", (message: Message) => {
-      console.log("Received message:", message);
       const chatStore = useChatStore.getState();
       chatStore.receiveMessage(message);
     });
     this.socket.on("message-sent", (message: Message) => {
-      console.log("Message sent confirmation:", message);
       const chatStore = useChatStore.getState();
       chatStore.receiveMessage(message);
     });

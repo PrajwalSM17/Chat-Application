@@ -1,115 +1,123 @@
-// // src/__tests__/ChatWindow.test.tsx
-// import React from 'react';
-// import { render, screen, fireEvent } from '@testing-library/react';
-// import ChatWindow from '../components/chat/ChatWindow';
-// import { useAuthStore } from '../stores/authStore';
-// import { useChatStore } from '../stores/chatStore';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import ChatWindow from '../components/chat/ChatWindow';
 
-// // Mock Zustand stores
-// jest.mock('../stores/authStore');
-// jest.mock('../stores/chatStore');
+type UserStatus = 'Available' | 'Busy' | 'Away' | 'Offline';
 
-// describe('ChatWindow Component', () => {
-//   const mockCurrentUser = {
-//     id: 'user-1',
-//     username: 'John Doe',
-//     email: 'john@example.com',
-//     status: 'Available'
-//   };
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  status: UserStatus;
+}
 
-//   const mockSelectedUser = {
-//     id: 'user-2',
-//     username: 'Jane Smith',
-//     email: 'jane@example.com',
-//     status: 'Available'
-//   };
+const mockUser: User = {
+  id: 'user-1',
+  username: 'Bharath',
+  email: 'bharath@example.com',
+  status: 'Available' 
+};
 
-//   const mockMessages = [
-//     {
-//       id: 'msg-1',
-//       content: 'Hello',
-//       senderId: 'user-1',
-//       receiverId: 'user-2',
-//       timestamp: new Date(),
-//       isRead: true
-//     },
-//     {
-//       id: 'msg-2',
-//       content: 'Hi there',
-//       senderId: 'user-2',
-//       receiverId: 'user-1',
-//       timestamp: new Date(),
-//       isRead: true
-//     }
-//   ];
+const mockSelectedUser: User = {
+  id: 'user-2',
+  username: 'Hanumanth',
+  email: 'hanumanth@example.com',
+  status: 'Available' 
+};
 
-//   beforeEach(() => {
-//     (useAuthStore as jest.Mock).mockReturnValue({
-//       user: mockCurrentUser
-//     });
+const mockMessages = [
+  {
+    id: 'msg-1',
+    content: 'Hello',
+    senderId: 'user-1',
+    receiverId: 'user-2',
+    timestamp: new Date(),
+    isRead: true
+  },
+  {
+    id: 'msg-2',
+    content: 'Hi there',
+    senderId: 'user-2',
+    receiverId: 'user-1',
+    timestamp: new Date(),
+    isRead: true
+  }
+];
 
-//     (useChatStore as jest.Mock).mockReturnValue({
-//       messages: mockMessages,
-//       replyingTo: null,
-//       isLoading: false,
-//       fetchMessages: jest.fn(),
-//       sendMessage: jest.fn(),
-//       setReplyingTo: jest.fn(),
-//       markMessagesAsRead: jest.fn()
-//     });
-//   });
+jest.mock('../store/authStore', () => ({
+  useAuthStore: jest.fn()
+}));
 
-//   test('renders placeholder when no user is selected', () => {
-//     render(<ChatWindow selectedUser={null} />);
+jest.mock('../store/chatStore', () => ({
+  useChatStore: jest.fn()
+}));
+
+import { useAuthStore } from "../store/authStore";
+import { useChatStore } from "../store/chatStore";
+
+describe('ChatWindow Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
     
-//     expect(screen.getByText('Select a user to start chatting')).toBeInTheDocument();
-//   });
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
+      user: mockUser
+    });
+    
+    (useChatStore as unknown as jest.Mock).mockReturnValue({
+      messages: mockMessages,
+      replyingTo: null,
+      isLoading: false,
+      fetchMessages: jest.fn(),
+      sendMessage: jest.fn(),
+      setReplyingTo: jest.fn(),
+      markMessagesAsRead: jest.fn()
+    });
+  });
 
-//   test('renders chat interface when user is selected', () => {
-//     render(<ChatWindow selectedUser={mockSelectedUser} />);
-    
-//     // Check header elements
-//     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-//     expect(screen.getByText('Available')).toBeInTheDocument();
-    
-//     // Check messages
-//     expect(screen.getByText('Hello')).toBeInTheDocument();
-//     expect(screen.getByText('Hi there')).toBeInTheDocument();
-    
-//     // Check input area
-//     expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument();
-//     expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument();
-//   });
+  test('renders placeholder when no user is selected', () => {
+    render(<ChatWindow selectedUser={null} />);
+    expect(screen.getByText('Select a user to start chatting')).toBeInTheDocument();
+  });
 
-//   test('sends a message when form is submitted', () => {
-//     const mockSendMessage = jest.fn();
-    
-//     (useChatStore as jest.Mock).mockReturnValue({
-//       messages: mockMessages,
-//       replyingTo: null,
-//       isLoading: false,
-//       fetchMessages: jest.fn(),
-//       sendMessage: mockSendMessage,
-//       setReplyingTo: jest.fn(),
-//       markMessagesAsRead: jest.fn()
-//     });
+  test('renders chat interface when user is selected', () => {
+    render(<ChatWindow selectedUser={mockSelectedUser} />);
+   
+    expect(screen.getByText('Bharath')).toBeInTheDocument();
+    expect(screen.getByText('Available')).toBeInTheDocument();
+   
+    expect(screen.getByText('Hello')).toBeInTheDocument();
+    expect(screen.getByText('Hi there')).toBeInTheDocument();
+   
+    expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument();
+  });
 
-//     render(<ChatWindow selectedUser={mockSelectedUser} />);
+  test('sends a message when form is submitted', () => {
+    const mockSendMessage = jest.fn();
+   
+    (useChatStore as unknown as jest.Mock).mockReturnValue({
+      messages: mockMessages,
+      replyingTo: null,
+      isLoading: false,
+      fetchMessages: jest.fn(),
+      sendMessage: mockSendMessage,
+      setReplyingTo: jest.fn(),
+      markMessagesAsRead: jest.fn()
+    });
     
-//     // Type a message
-//     fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
-//       target: { value: 'New message' }
-//     });
-    
-//     // Send the message
-//     fireEvent.click(screen.getByRole('button', { name: /send/i }));
-    
-//     // Check if sendMessage was called with the right parameters
-//     expect(mockSendMessage).toHaveBeenCalledWith(
-//       'New message',
-//       'user-1',
-//       'user-2',
-//       undefined
-//     );
-//   });
-// });
+    render(<ChatWindow selectedUser={mockSelectedUser} />);
+   
+    fireEvent.change(screen.getByPlaceholderText('Type a message...'), {
+      target: { value: 'New message' }
+    });
+   
+    fireEvent.click(screen.getByRole('button', { name: /send/i }));
+   
+    expect(mockSendMessage).toHaveBeenCalledWith(
+      'New message',
+      'user-1',
+      'user-2',
+      undefined
+    );
+  });
+});

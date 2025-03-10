@@ -1,99 +1,101 @@
-// // src/__tests__/Login.test.tsx
-// import React from 'react';
-// import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-// import { BrowserRouter } from 'react-router-dom';
-// import Login from '../pages/Login';
-// import { useAuthStore } from '../stores/authStore';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import Login from '../pages/Login';
 
-// // Mock the Zustand store
-// jest.mock('../stores/authStore');
+jest.mock('../store/authStore', () => ({
+  useAuthStore: jest.fn()
+}));
 
-// describe('Login Component', () => {
-//   beforeEach(() => {
-//     // Mock implementation of useAuthStore
-//     (useAuthStore as jest.Mock).mockReturnValue({
-//       login: jest.fn(),
-//       isAuthenticated: false,
-//       isLoading: false,
-//       error: null
-//     });
-//   });
+import { useAuthStore } from '../store/authStore';
 
-//   test('renders login form correctly', () => {
-//     render(
-//       <BrowserRouter>
-//         <Login />
-//       </BrowserRouter>
-//     );
+describe('Login Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
     
-//     expect(screen.getByPlaceholderText('Email address')).toBeInTheDocument();
-//     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
-//     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-//     expect(screen.getByText(/don't have an account\? sign up/i)).toBeInTheDocument();
-//   });
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
+      login: jest.fn(),
+      isAuthenticated: false,
+      isLoading: false,
+      error: null
+    });
+  });
 
-//   test('submits the form with email and password', async () => {
-//     const mockLogin = jest.fn().mockResolvedValue(undefined);
+  test('renders login form correctly', () => {
+    render(
+      <BrowserRouter>
+        <Login />
+      </BrowserRouter>
+    );
     
-//     (useAuthStore as jest.Mock).mockReturnValue({
-//       login: mockLogin,
-//       isAuthenticated: false,
-//       isLoading: false,
-//       error: null
-//     });
+    expect(screen.getByPlaceholderText('Email address')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByText(/don't have an account\? sign up/i)).toBeInTheDocument();
+  });
 
-//     render(
-//       <BrowserRouter>
-//         <Login />
-//       </BrowserRouter>
-//     );
-
-//     fireEvent.change(screen.getByPlaceholderText('Email address'), {
-//       target: { value: 'test@example.com' }
-//     });
+  test('submits the form with email and password', async () => {
+    const mockLogin = jest.fn().mockResolvedValue(undefined);
     
-//     fireEvent.change(screen.getByPlaceholderText('Password'), {
-//       target: { value: 'password123' }
-//     });
-    
-//     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-//     await waitFor(() => {
-//       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
-//     });
-//   });
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
+      login: mockLogin,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null
+    });
 
-//   test('displays error message when login fails', () => {
-//     (useAuthStore as jest.Mock).mockReturnValue({
-//       login: jest.fn(),
-//       isAuthenticated: false,
-//       isLoading: false,
-//       error: 'Invalid credentials'
-//     });
+    render(
+      <BrowserRouter>
+        <Login />
+      </BrowserRouter>
+    );
 
-//     render(
-//       <BrowserRouter>
-//         <Login />
-//       </BrowserRouter>
-//     );
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
+      target: { value: 'test@example.com' }
+    });
     
-//     expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
-//   });
-
-//   test('shows loading state during authentication', () => {
-//     (useAuthStore as jest.Mock).mockReturnValue({
-//       login: jest.fn(),
-//       isAuthenticated: false,
-//       isLoading: true,
-//       error: null
-//     });
-
-//     render(
-//       <BrowserRouter>
-//         <Login />
-//       </BrowserRouter>
-//     );
+    fireEvent.change(screen.getByPlaceholderText('Password'), {
+      target: { value: 'password123' }
+    });
     
-//     expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
-//   });
-// });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+    });
+  });
+
+  test('displays error message when login fails', () => {
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
+      login: jest.fn(),
+      isAuthenticated: false,
+      isLoading: false,
+      error: 'Invalid credentials'
+    });
+
+    render(
+      <BrowserRouter>
+        <Login />
+      </BrowserRouter>
+    );
+    
+    expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+  });
+
+  test('shows loading state during authentication', () => {
+    (useAuthStore as unknown as jest.Mock).mockReturnValue({
+      login: jest.fn(),
+      isAuthenticated: false,
+      isLoading: true,
+      error: null
+    });
+
+    render(
+      <BrowserRouter>
+        <Login />
+      </BrowserRouter>
+    );
+    
+    expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
+  });
+});
