@@ -17,7 +17,7 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     if (!user || user === null) {
-      console.log('isAuthenticated', isAuthenticated, user);   // TODO: some fix is required here to load page on refresh
+      // TODO: some fix is required here to load page on refresh
       navigate("/login");
     }
   }, [isAuthenticated, user, navigate]);

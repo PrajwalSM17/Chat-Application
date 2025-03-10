@@ -58,7 +58,6 @@ export const useChatStore = create<ChatState>((set) => ({
     set((state) => ({
       messages: [...state.messages, message],
     }));
-    console.log("storeeeeee message:-->", message);
   },
 
   setReplyingTo: (message: Message | null) => {

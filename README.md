@@ -58,18 +58,31 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 Project Structure
 Copysrc/
-├── assets/             # Static assets like images
-├── components/         # Reusable UI components
-│   ├── auth/           # Authentication-related components
-│   ├── chat/           # Chat-related components
-│   ├── shared/         # Shared utility components
-│   └── layout/         # Layout components
-├── pages/              # Page components that correspond to routes
-├── stores/             # Zustand stores
-├── types/              # TypeScript type definitions
-├── services/           # API services
-├── utils/              # Utility functions
-└── App.tsx             # Root component
+src/
+ ├── components/
+ │   └── chat/
+ │       ├── ChatWindow.tsx       # Displays messages between users with reply functionality and read receipts
+ │       ├── StatusSelector.tsx   # Dropdown component allowing users to change their online status
+ │       └── UserList.tsx         # Displays filterable list of users with status indicators
+ ├── pages/
+ │   ├── Chat.tsx                 # Main application page containing chat interface and components
+ │   ├── Login.tsx                # Authentication page with email/password form and validation
+ │   └── Register.tsx             # New user registration page with form validation
+ ├── store/
+ │   ├── authStore.ts             # Zustand store managing authentication state and user data
+ │   ├── chatStore.ts             # Zustand store managing messages and conversation state
+ │   └── userStore.ts             # Zustand store managing user list and selection state
+ ├── services/
+ │   ├── api.ts                   # Axios configuration for API requests with token handling
+ │   ├── authService.ts           # Authentication API services (login, register, status)
+ │   ├── chatService.ts           # Chat API services (fetch/send messages, read receipts)
+ │   ├── socketService.ts         # WebSocket connection management for real-time features
+ │   └── userService.ts           # User API services (fetch users, user profiles)
+ ├── types/
+ │   └── index.ts                 # TypeScript interfaces for User, Message, and Chat
+ ├── App.tsx                      # Root component with routing and authentication protection
+ └── index.tsx                    # Application entry point with React rendering
+
 
 Key Components
 Authentication Components
